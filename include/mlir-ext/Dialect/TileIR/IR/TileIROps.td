@@ -464,7 +464,7 @@ def TileIR_StoreTensorOp : TileIR_Op<"store_tensor", [Pure, MemoryEffects<[MemWr
   }];
 
   let arguments = (ins
-    TileIR_TensorType:$src,
+    AnyTypeOf<[TileIR_TensorType, AnyRankedTensor]>:$src,
     TileIR_BufType:$dst
   );
 

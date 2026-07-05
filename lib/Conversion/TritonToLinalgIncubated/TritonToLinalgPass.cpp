@@ -126,6 +126,10 @@ static bool isSIMTOp(Operation *op) {
 TritonTypeConverter::TritonTypeConverter() {
   addConversion([](Type type) { return type; });
 
+  // Explicit identity conversion for MemRefType — prevents the type converter
+  // from falling through to TensorType conversion for memref-typed values.
+  addConversion([](MemRefType memrefType) -> Type { return memrefType; });
+
   addConversion([](triton::PointerType ptrType) {
     Type elem = ptrType.getPointeeType();
     // Handling special case: ptr<i1> -> memref<?x i8>
@@ -934,6 +938,20 @@ void TritonToLinalgIncubatedPass::runOnOperation() {
 
   moduleOp.walk([this](LoopLikeOpInterface loopOp) {
     auto *op = loopOp.getOperation();
+
+    // Skip loops whose body contains pre-lowered memref/bufferization ops
+    // (produced by TileIRToHIVM).  These loops already operate on memrefs and
+    // cannot be restructured by rewriteLoopOp.
+    bool hasPreLoweredOps = false;
+    op->walk([&](Operation *inner) {
+      if (inner != op &&
+          isa<memref::CopyOp, bufferization::ToMemrefOp,
+              bufferization::ToTensorOp>(inner))
+        hasPreLoweredOps = true;
+    });
+    if (hasPreLoweredOps)
+      return;
+
     if (!op->hasAttr("ExtractedLoadOrStore"))
       op->setAttr("UnhandledLoopOp", UnitAttr::get(op->getContext()));
 
