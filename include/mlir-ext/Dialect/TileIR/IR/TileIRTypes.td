@@ -38,13 +38,15 @@ def TileIR_BufType : TileIR_Type<"Buf", "buf"> {
   let summary = "TileIR mutable buffer type";
   let description = [{
     A !tile.buf represents a mutable buffer allocated in a specific memory space
-    (GM, L1, L0A, L0B, L0C, or UB). It carries shape, element type, and
-    memory space — enabling the IR to track physical buffer locations.
+    (GM, L1, L0A, L0B, L0C, UB, or a GPU space such as global/shared/local/register).
+    It carries shape, element type, and memory space — enabling the IR to track
+    physical buffer locations.
 
     Example:
     ```mlir
     !tile.buf<[128,128], f16, #tile.L1>
     !tile.buf<[2,128,128], f16, #tile.L0A>
+    !tile.buf<[128,128], f16, #tile.shared>
     ```
   }];
 

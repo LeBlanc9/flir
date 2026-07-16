@@ -41,6 +41,10 @@ def TileIR_MemorySpace : I64EnumAttr<
     I64EnumAttrCase<"L0B", 3, "l0b">,
     I64EnumAttrCase<"L0C", 4, "l0c">,
     I64EnumAttrCase<"UB",  5, "ub">,
+    I64EnumAttrCase<"Global",   6, "global">,
+    I64EnumAttrCase<"Shared",   7, "shared">,
+    I64EnumAttrCase<"Local",    8, "local">,
+    I64EnumAttrCase<"Register", 9, "register">,
   ]> {
   let cppNamespace = "::mlir::triton::tile";
 }
