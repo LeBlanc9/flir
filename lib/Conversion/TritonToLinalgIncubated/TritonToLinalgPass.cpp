@@ -944,10 +944,15 @@ void TritonToLinalgIncubatedPass::runOnOperation() {
     // cannot be restructured by rewriteLoopOp.
     bool hasPreLoweredOps = false;
     op->walk([&](Operation *inner) {
-      if (inner != op &&
-          isa<memref::CopyOp, bufferization::ToMemrefOp,
+#ifndef __LLVM_MAJOR_VERSION_22_COMPATIBLE__
+      if (inner != op && isa<memref::CopyOp, bufferization::ToMemrefOp,
               bufferization::ToTensorOp>(inner))
         hasPreLoweredOps = true;
+#else
+      if (inner != op && isa<memref::CopyOp, bufferization::ToBufferOp,
+              bufferization::ToTensorOp>(inner))
+        hasPreLoweredOps = true;
+#endif
     });
     if (hasPreLoweredOps)
       return;
