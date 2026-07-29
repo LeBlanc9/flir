@@ -43,7 +43,7 @@ class TileIR_Op<string mnemonic, list<Trait> traits = []> :
 // ---------------------------------------------------------------------------
 // tile.alloc — Allocate a buffer in a specific memory space
 // ---------------------------------------------------------------------------
-def TileIR_AllocOp : TileIR_Op<"alloc", [Pure]> {
+def TileIR_AllocOp : TileIR_Op<"alloc", []> {
   let summary = "Allocate a buffer in a specific memory space";
   let description = [{
     Allocates a buffer with given shape, dtype, and memory space attributes.
@@ -68,7 +68,7 @@ def TileIR_AllocOp : TileIR_Op<"alloc", [Pure]> {
     OptionalAttr<StrAttr>:$comment
   );
 
-  let results = (outs TileIR_BufType:$result);
+  let results = (outs Res<TileIR_BufType, "", [MemAlloc]>:$result);
 
   let assemblyFormat = "attr-dict `:` type($result)";
 }
