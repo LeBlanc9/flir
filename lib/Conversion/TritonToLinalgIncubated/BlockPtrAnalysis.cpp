@@ -51,11 +51,11 @@
 
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/SmallVectorExtras.h"
+#include "llvm/Config/llvm-config.h"
 #include "llvm/Support/Casting.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/ErrorHandling.h"
 #include "llvm/Support/FormatVariadic.h"
-#include "llvm/Config/llvm-config.h"
 #include <cassert>
 #include <set>
 
@@ -1357,8 +1357,7 @@ void BlockDataParser::rewriteCustomOp(
 #else
       rewriter.create<hivm::CustomOp>(loc, resultTypes,
                                       rewriter.getStringAttr(op.getName()),
-                                      newInputs,
-                                      newOutputs);
+                                      newInputs, newOutputs);
 #endif
   auto operandSegmentSizesAttr = newCustomOp->getAttr("operandSegmentSizes");
   newCustomOp->setAttrs(op->getAttrs());

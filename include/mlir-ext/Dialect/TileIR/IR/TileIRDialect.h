@@ -34,7 +34,6 @@
 #define GET_OP_CLASSES
 #include "mlir-ext/Dialect/TileIR/IR/TileIROps.h.inc"
 
-namespace mlir::triton::tile {
-} // namespace mlir::triton::tile
+namespace mlir::triton::tile {} // namespace mlir::triton::tile
 
 #endif // TRITON_DIALECT_TILE_IR_DIALECT_H

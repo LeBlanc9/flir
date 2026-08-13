@@ -73,7 +73,7 @@ Descriptor unpackDescriptor(TensorDescType type, Value desc,
     res.strides.push_back(rewriter.createOrFold<arith::ExtSIOp>(
         makeDescOp.getLoc(), rewriter.getI64Type(), st));
   }
-  #if LLVM_VERSION_MAJOR >= 22
+#if LLVM_VERSION_MAJOR >= 22
   res.padding = makeDescOp.getPaddingAttr();
 #endif
 

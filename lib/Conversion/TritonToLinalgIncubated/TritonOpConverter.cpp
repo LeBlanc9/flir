@@ -2431,7 +2431,7 @@ DotScaledConverter::matchAndRewrite(triton::DotScaledOp op, OpAdaptor adaptor,
   Type bf16Ty = rewriter.getBF16Type();
   Type fp16Ty = rewriter.getF16Type();
   Type fp32Ty = rewriter.getF32Type();
-  #if LLVM_VERSION_MAJOR >= 22
+#if LLVM_VERSION_MAJOR >= 22
   bool fastMath = op.getFastMath();
 #else
   bool fastMath = false;
