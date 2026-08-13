@@ -45,7 +45,7 @@ using namespace triton;
 class LoadConverter : public OpRewritePattern<triton::LoadOp> {
 public:
   explicit LoadConverter(MLIRContext *context)
-      : OpRewritePattern<triton::LoadOp>(context){};
+      : OpRewritePattern<triton::LoadOp>(context) {};
 
   using OpRewritePattern<triton::LoadOp>::OpRewritePattern;
 
@@ -56,7 +56,7 @@ public:
 class StoreConverter : public OpRewritePattern<triton::StoreOp> {
 public:
   explicit StoreConverter(MLIRContext *context)
-      : OpRewritePattern<triton::StoreOp>(context){};
+      : OpRewritePattern<triton::StoreOp>(context) {};
 
   using OpRewritePattern<triton::StoreOp>::OpRewritePattern;
 
@@ -67,7 +67,7 @@ public:
 class AtomicRMWConverter : public OpRewritePattern<triton::AtomicRMWOp> {
 public:
   explicit AtomicRMWConverter(MLIRContext *context)
-      : OpRewritePattern<triton::AtomicRMWOp>(context){};
+      : OpRewritePattern<triton::AtomicRMWOp>(context) {};
 
   using OpRewritePattern<triton::AtomicRMWOp>::OpRewritePattern;
 
@@ -78,7 +78,7 @@ public:
 class AtomicCASConverter : public OpRewritePattern<triton::AtomicCASOp> {
 public:
   explicit AtomicCASConverter(MLIRContext *context)
-      : OpRewritePattern<triton::AtomicCASOp>(context){};
+      : OpRewritePattern<triton::AtomicCASOp>(context) {};
 
   using OpRewritePattern<triton::AtomicCASOp>::OpRewritePattern;
 

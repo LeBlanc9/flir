@@ -74,10 +74,10 @@
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/SmallVectorExtras.h"
 #include "llvm/ADT/Twine.h"
+#include "llvm/Config/llvm-config.h"
 #include "llvm/Support/Casting.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/ErrorHandling.h"
-#include "llvm/Config/llvm-config.h"
 #include "llvm/Support/LogicalResult.h"
 
 #ifdef __TLE_STRUCT__
@@ -946,11 +946,11 @@ void TritonToLinalgIncubatedPass::runOnOperation() {
     op->walk([&](Operation *inner) {
 #ifndef __LLVM_MAJOR_VERSION_22_COMPATIBLE__
       if (inner != op && isa<memref::CopyOp, bufferization::ToMemrefOp,
-              bufferization::ToTensorOp>(inner))
+                             bufferization::ToTensorOp>(inner))
         hasPreLoweredOps = true;
 #else
       if (inner != op && isa<memref::CopyOp, bufferization::ToBufferOp,
-              bufferization::ToTensorOp>(inner))
+                             bufferization::ToTensorOp>(inner))
         hasPreLoweredOps = true;
 #endif
     });
@@ -1156,7 +1156,7 @@ void TritonToLinalgIncubatedPass::runOnOperation() {
     MemRefType syncBlockLockArgType =
         MemRefType::get(SmallVector<int64_t>(1, ShapedType::kDynamic),
                         IntegerType::get(context, 8));
-    #if LLVM_VERSION_MAJOR >= 22
+#if LLVM_VERSION_MAJOR >= 22
     llvm::LogicalResult syncBlockLockArg =
         func.insertArgument(syncBlockLockArgIdx,      // argIndex
                             syncBlockLockArgType,     // argType
@@ -1178,7 +1178,7 @@ void TritonToLinalgIncubatedPass::runOnOperation() {
     NamedAttribute workspaceArgAttr(StringAttr::get(context, "workspace"),
                                     UnitAttr::get(context));
 
-    #if LLVM_VERSION_MAJOR >= 22
+#if LLVM_VERSION_MAJOR >= 22
     llvm::LogicalResult workspaceArg =
         func.insertArgument(/*argIndex*/ workspaceArgIdx,
                             /*argType*/ workspaceArgType,
