@@ -29,6 +29,7 @@
 #include "incubated/Conversion/TritonToLinalgIncubated/ImplicitPermute.h"
 #include "incubated/Conversion/TritonToLinalgIncubated/LoadStoreConverter.h"
 #include "incubated/Conversion/TritonToLinalgIncubated/MarkTensorKindPass.h"
+#include "incubated/Conversion/TritonToLinalgIncubated/TileConcatConverter.h"
 #include "incubated/Conversion/TritonToLinalgIncubated/TritonOpConverter.h"
 #include "incubated/Conversion/TritonToLinalgIncubated/TritonToLinalgIncubatedPass.h"
 #include "incubated/Conversion/TritonToLinalgIncubated/UseAnalysis.h"
@@ -913,6 +914,7 @@ void TritonToLinalgIncubatedPass::runOnOperation() {
   };
 
   target.addIllegalOp<triton::ScanOp>();
+  target.addIllegalOp<triton::tile::ConcatOp>();
   target.addDynamicallyLegalOp<scf::ForOp>(loopOpLegalFn);
   target.addDynamicallyLegalOp<scf::WhileOp>(loopOpLegalFn);
 
@@ -923,6 +925,8 @@ void TritonToLinalgIncubatedPass::runOnOperation() {
   }
   this->populateTritonToLinalgConversionPatterns(tritonTypeConverter, patterns,
                                                  LAUNCH_GRID_RANK);
+  triton::tile::populateTileConcatOpConversionPatterns(tritonTypeConverter,
+                                                       patterns);
 #ifdef __TLE_STRUCT__
   triton::tle::populateTleMathOpConversionPatterns(tritonTypeConverter,
                                                    patterns);
