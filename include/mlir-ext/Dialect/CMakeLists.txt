@@ -1,2 +1,4 @@
 add_subdirectory(MathExt)
-add_subdirectory(CommonIR)
+if (FLIR_BUILD_INCUBATED)
+  add_subdirectory(CommonIR)
+endif()
