@@ -4,7 +4,7 @@
 #include "mlir/IR/BuiltinOps.h"
 
 namespace mlir::triton::tile {
-#define GEN_PASS_DEF_TILEIRINFERLAYOUT
+#define GEN_PASS_DEF_COMMONIRINFERLAYOUT
 #include "mlir-ext/Dialect/CommonIR/Transforms/Passes.h.inc"
 } // namespace mlir::triton::tile
 
