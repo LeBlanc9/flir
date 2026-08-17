@@ -1,2 +1,2 @@
 add_subdirectory(MathExt)
-add_subdirectory(TileIR)
+add_subdirectory(CommonIR)

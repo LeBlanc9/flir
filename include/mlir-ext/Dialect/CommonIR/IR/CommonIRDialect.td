@@ -1,4 +1,4 @@
-//===-- TileIRDialect.td - TileIR dialect definition ---------*- tablegen -*-===//
+//===-- CommonIRDialect.td - CommonIR dialect definition ---------*- tablegen -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,7 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// This is the TileIR dialect definition file. TileIR is a hardware-oriented IR
+// This is the CommonIR dialect definition file. CommonIR is a hardware-oriented IR
 // that explicitly encodes memory hierarchy, engine binding, data layout, and
 // synchronization — enabling deterministic 1:1 lowering to HIVM (Ascend NPU).
 //
@@ -17,13 +17,13 @@
 
 include "mlir/IR/OpBase.td"
 
-def TileIR_Dialect : Dialect {
+def CommonIR_Dialect : Dialect {
   let name = "tile";
   let cppNamespace = "::mlir::triton::tile";
-  let summary = "The TileIR dialect for explicit hardware control on NPU.";
+  let summary = "The CommonIR dialect for explicit hardware control on NPU.";
 
   let description = [{
-    TileIR is a hardware-oriented intermediate representation that encodes:
+    CommonIR is a hardware-oriented intermediate representation that encodes:
     - Memory hierarchy (GM/L1/L0A/L0B/L0C/UB)
     - Engine binding (Cube, Vector, MTE2, MTE3)
     - Data layout (ND, NZ fractal)
@@ -31,7 +31,7 @@ def TileIR_Dialect : Dialect {
     - Cross-engine synchronization (set_flag/wait_flag/pipe_barrier)
     - Async compute (cube_launch)
 
-    TileIR ops map 1:1 to HIVM instructions, eliminating the need for
+    CommonIR ops map 1:1 to HIVM instructions, eliminating the need for
     compiler-driven scheduling inference.
   }];
 

@@ -1,4 +1,4 @@
-//===- TileIRDialect.cpp - TileIR Dialect registration --------------------===//
+//===- CommonIRDialect.cpp - CommonIR Dialect registration --------------------===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,12 +6,12 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// This file implements the TileIR dialect, registering all operations,
+// This file implements the CommonIR dialect, registering all operations,
 // attributes, and types.
 //
 //===----------------------------------------------------------------------===//
 
-#include "mlir-ext/Dialect/TileIR/IR/TileIRDialect.h"
+#include "mlir-ext/Dialect/CommonIR/IR/CommonIRDialect.h"
 
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/IR/Builders.h"
@@ -27,26 +27,26 @@
 using namespace mlir;
 using namespace mlir::triton::tile;
 
-void TileIRDialect::initialize() {
+void CommonIRDialect::initialize() {
   addOperations<
 #define GET_OP_LIST
-#include "mlir-ext/Dialect/TileIR/IR/TileIROps.cpp.inc"
+#include "mlir-ext/Dialect/CommonIR/IR/CommonIROps.cpp.inc"
       >();
   addAttributes<
 #define GET_ATTRDEF_LIST
-#include "mlir-ext/Dialect/TileIR/IR/TileIROpsAttrDefs.cpp.inc"
+#include "mlir-ext/Dialect/CommonIR/IR/CommonIROpsAttrDefs.cpp.inc"
       >();
   addTypes<
 #define GET_TYPEDEF_LIST
-#include "mlir-ext/Dialect/TileIR/IR/TileIRTypes.cpp.inc"
+#include "mlir-ext/Dialect/CommonIR/IR/CommonIRTypes.cpp.inc"
       >();
 }
 
-#include "mlir-ext/Dialect/TileIR/IR/TileIRDialect.cpp.inc"
-#include "mlir-ext/Dialect/TileIR/IR/TileIREnums.cpp.inc"
+#include "mlir-ext/Dialect/CommonIR/IR/CommonIRDialect.cpp.inc"
+#include "mlir-ext/Dialect/CommonIR/IR/CommonIREnums.cpp.inc"
 #define GET_ATTRDEF_CLASSES
-#include "mlir-ext/Dialect/TileIR/IR/TileIROpsAttrDefs.cpp.inc"
+#include "mlir-ext/Dialect/CommonIR/IR/CommonIROpsAttrDefs.cpp.inc"
 #define GET_TYPEDEF_CLASSES
-#include "mlir-ext/Dialect/TileIR/IR/TileIRTypes.cpp.inc"
+#include "mlir-ext/Dialect/CommonIR/IR/CommonIRTypes.cpp.inc"
 #define GET_OP_CLASSES
-#include "mlir-ext/Dialect/TileIR/IR/TileIROps.cpp.inc"
+#include "mlir-ext/Dialect/CommonIR/IR/CommonIROps.cpp.inc"

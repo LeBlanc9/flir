@@ -1,11 +1,11 @@
-#include "mlir-ext/Dialect/TileIR/Transforms/Passes.h"
+#include "mlir-ext/Dialect/CommonIR/Transforms/Passes.h"
 
-#include "mlir-ext/Dialect/TileIR/IR/TileIRDialect.h"
+#include "mlir-ext/Dialect/CommonIR/IR/CommonIRDialect.h"
 #include "mlir/IR/BuiltinOps.h"
 
 namespace mlir::triton::tile {
 #define GEN_PASS_DEF_TILEIRINFERLAYOUT
-#include "mlir-ext/Dialect/TileIR/Transforms/Passes.h.inc"
+#include "mlir-ext/Dialect/CommonIR/Transforms/Passes.h.inc"
 } // namespace mlir::triton::tile
 
 using namespace mlir;
@@ -13,8 +13,8 @@ namespace tile = mlir::triton::tile;
 
 namespace {
 
-struct TileIRInferLayoutPass
-    : public tile::impl::TileIRInferLayoutBase<TileIRInferLayoutPass> {
+struct CommonIRInferLayoutPass
+    : public tile::impl::CommonIRInferLayoutBase<CommonIRInferLayoutPass> {
   void runOnOperation() override {
     auto module = getOperation();
     auto nd = tile::LayoutAttr::get(&getContext(), tile::Layout::ND);
@@ -34,6 +34,6 @@ struct TileIRInferLayoutPass
 } // namespace
 
 std::unique_ptr<OperationPass<ModuleOp>>
-mlir::triton::tile::createTileIRInferLayoutPass() {
-  return std::make_unique<TileIRInferLayoutPass>();
+mlir::triton::tile::createCommonIRInferLayoutPass() {
+  return std::make_unique<CommonIRInferLayoutPass>();
 }

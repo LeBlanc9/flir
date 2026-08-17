@@ -1,4 +1,4 @@
-//===-- TileIRTypes.td - TileIR type definitions ------------*- tablegen -*-===//
+//===-- CommonIRTypes.td - CommonIR type definitions ------------*- tablegen -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,7 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// This file defines TileIR types: !tile.buf (mutable buffer) and
+// This file defines CommonIR types: !tile.buf (mutable buffer) and
 // !tile.tensor (immutable tensor view), both parameterized by shape,
 // element type, and memory space.
 //
@@ -15,8 +15,8 @@
 #ifndef TILE_IR_TYPES
 #define TILE_IR_TYPES
 
-include "mlir-ext/Dialect/TileIR/IR/TileIRDialect.td"
-include "mlir-ext/Dialect/TileIR/IR/TileIRAttrDefs.td"
+include "mlir-ext/Dialect/CommonIR/IR/CommonIRDialect.td"
+include "mlir-ext/Dialect/CommonIR/IR/CommonIRAttrDefs.td"
 
 include "mlir/IR/AttrTypeBase.td"
 include "mlir/IR/EnumAttr.td"
@@ -25,8 +25,8 @@ include "mlir/IR/EnumAttr.td"
 // Type base class
 //===----------------------------------------------------------------------===//
 
-class TileIR_Type<string name, string typeMnemonic, list<Trait> traits = []>
-    : TypeDef<TileIR_Dialect, name, traits> {
+class CommonIR_Type<string name, string typeMnemonic, list<Trait> traits = []>
+    : TypeDef<CommonIR_Dialect, name, traits> {
   let mnemonic = typeMnemonic;
 }
 
@@ -34,8 +34,8 @@ class TileIR_Type<string name, string typeMnemonic, list<Trait> traits = []>
 // !tile.buf<[shape], dtype, space> — mutable buffer type
 //===----------------------------------------------------------------------===//
 
-def TileIR_BufType : TileIR_Type<"Buf", "buf"> {
-  let summary = "TileIR mutable buffer type";
+def CommonIR_BufType : CommonIR_Type<"Buf", "buf"> {
+  let summary = "CommonIR mutable buffer type";
   let description = [{
     A !tile.buf represents a mutable buffer allocated in a specific memory space
     (GM, L1, L0A, L0B, L0C, UB, or a GPU space such as global/shared/local/register).
@@ -53,7 +53,7 @@ def TileIR_BufType : TileIR_Type<"Buf", "buf"> {
   let parameters = (ins
     ArrayRefParameter<"int64_t">:$shape,
     "mlir::Type":$elementType,
-    EnumParameter<TileIR_MemorySpace>:$memorySpace
+    EnumParameter<CommonIR_MemorySpace>:$memorySpace
   );
 
   let assemblyFormat = "`<` `[` $shape `]` `,` $elementType `,` $memorySpace `>`";
@@ -63,8 +63,8 @@ def TileIR_BufType : TileIR_Type<"Buf", "buf"> {
 // !tile.tensor<[shape], dtype, space> — immutable tensor view type
 //===----------------------------------------------------------------------===//
 
-def TileIR_TensorType : TileIR_Type<"Tensor", "tensor"> {
-  let summary = "TileIR immutable tensor view type";
+def CommonIR_TensorType : CommonIR_Type<"Tensor", "tensor"> {
+  let summary = "CommonIR immutable tensor view type";
   let description = [{
     A !tile.tensor represents an immutable view of data in a specific memory
     space, typically used as the result of tile.to_tensor or tile.load.
@@ -80,7 +80,7 @@ def TileIR_TensorType : TileIR_Type<"Tensor", "tensor"> {
   let parameters = (ins
     ArrayRefParameter<"int64_t">:$shape,
     "mlir::Type":$elementType,
-    EnumParameter<TileIR_MemorySpace>:$memorySpace
+    EnumParameter<CommonIR_MemorySpace>:$memorySpace
   );
 
   let assemblyFormat = "`<` `[` $shape `]` `,` $elementType `,` $memorySpace `>`";

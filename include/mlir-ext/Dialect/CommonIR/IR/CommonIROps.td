@@ -1,4 +1,4 @@
-//===-- TileIROps.td - TileIR operation definitions --------*- tablegen -*-===//
+//===-- CommonIROps.td - CommonIR operation definitions --------*- tablegen -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,7 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// This file defines all TileIR operations. TileIR ops explicitly encode memory
+// This file defines all CommonIR operations. CommonIR ops explicitly encode memory
 // hierarchy, engine binding, data layout, synchronization, and async compute —
 // enabling deterministic 1:1 lowering to HIVM (Ascend NPU).
 //
@@ -23,16 +23,16 @@ include "mlir/Interfaces/InferTypeOpInterface.td"
 include "triton/Dialect/Triton/IR/TritonTypes.td"
 include "triton/Dialect/Triton/IR/TritonInterfaces.td"
 
-include "mlir-ext/Dialect/TileIR/IR/TileIRDialect.td"
-include "mlir-ext/Dialect/TileIR/IR/TileIRAttrDefs.td"
-include "mlir-ext/Dialect/TileIR/IR/TileIRTypes.td"
+include "mlir-ext/Dialect/CommonIR/IR/CommonIRDialect.td"
+include "mlir-ext/Dialect/CommonIR/IR/CommonIRAttrDefs.td"
+include "mlir-ext/Dialect/CommonIR/IR/CommonIRTypes.td"
 
 //===----------------------------------------------------------------------===//
 // Op Base
 //===----------------------------------------------------------------------===//
 
-class TileIR_Op<string mnemonic, list<Trait> traits = []> :
-    Op<TileIR_Dialect, mnemonic, traits> {
+class CommonIR_Op<string mnemonic, list<Trait> traits = []> :
+    Op<CommonIR_Dialect, mnemonic, traits> {
   let hasVerifier = 1;
 }
 
@@ -43,7 +43,7 @@ class TileIR_Op<string mnemonic, list<Trait> traits = []> :
 // ---------------------------------------------------------------------------
 // tile.alloc — Allocate a buffer in a specific memory space
 // ---------------------------------------------------------------------------
-def TileIR_AllocOp : TileIR_Op<"alloc", []> {
+def CommonIR_AllocOp : CommonIR_Op<"alloc", []> {
   let summary = "Allocate a buffer in a specific memory space";
   let description = [{
     Allocates a buffer with given shape, dtype, and memory space attributes.
@@ -59,16 +59,16 @@ def TileIR_AllocOp : TileIR_Op<"alloc", []> {
   }];
 
   let arguments = (ins
-    TileIR_MemorySpace:$space,
+    CommonIR_MemorySpace:$space,
     OptionalAttr<I64ArrayAttr>:$shape,
     OptionalAttr<TypeAttr>:$dtype,
-    OptionalAttr<TileIR_Policy>:$policy,
-    OptionalAttr<TileIR_Layout>:$layout,
-    OptionalAttr<TileIR_Lifetime>:$lifetime,
+    OptionalAttr<CommonIR_Policy>:$policy,
+    OptionalAttr<CommonIR_Layout>:$layout,
+    OptionalAttr<CommonIR_Lifetime>:$lifetime,
     OptionalAttr<StrAttr>:$comment
   );
 
-  let results = (outs Res<TileIR_BufType, "", [MemAlloc]>:$result);
+  let results = (outs Res<CommonIR_BufType, "", [MemAlloc]>:$result);
 
   let assemblyFormat = "attr-dict `:` type($result)";
 }
@@ -76,7 +76,7 @@ def TileIR_AllocOp : TileIR_Op<"alloc", []> {
 // ---------------------------------------------------------------------------
 // tile.subview — Extract a sub-view (slice) from a buffer
 // ---------------------------------------------------------------------------
-def TileIR_SubViewOp : TileIR_Op<"subview", [Pure]> {
+def CommonIR_SubViewOp : CommonIR_Op<"subview", [Pure]> {
   let summary = "Extract a sub-view (slice) from a buffer";
   let description = [{
     Creates a zero-copy view into a portion of a buffer. Used for slot
@@ -90,13 +90,13 @@ def TileIR_SubViewOp : TileIR_Op<"subview", [Pure]> {
   }];
 
   let arguments = (ins
-    TileIR_BufType:$source,
+    CommonIR_BufType:$source,
     Variadic<Index>:$offsets,
     I64ArrayAttr:$sizes,
     I64ArrayAttr:$strides
   );
 
-  let results = (outs TileIR_BufType:$result);
+  let results = (outs CommonIR_BufType:$result);
 
   let assemblyFormat = [{
     $source `[` $offsets `]` `[` $sizes `]` `[` $strides `]`
@@ -107,7 +107,7 @@ def TileIR_SubViewOp : TileIR_Op<"subview", [Pure]> {
 // ---------------------------------------------------------------------------
 // tile.gm_offset — Compute global memory address with strides
 // ---------------------------------------------------------------------------
-def TileIR_GmOffsetOp : TileIR_Op<"gm_offset", [Pure, SameVariadicOperandSize]> {
+def CommonIR_GmOffsetOp : CommonIR_Op<"gm_offset", [Pure, SameVariadicOperandSize]> {
   let summary = "Compute global memory offset with multi-dimensional strides";
   let description = [{
     Computes a GM pointer from a base pointer and multi-dimensional indices
@@ -138,7 +138,7 @@ def TileIR_GmOffsetOp : TileIR_Op<"gm_offset", [Pure, SameVariadicOperandSize]> 
 // ---------------------------------------------------------------------------
 // tile.copy — Copy data between memory regions with layout conversion
 // ---------------------------------------------------------------------------
-def TileIR_CopyOp : TileIR_Op<"copy", [Pure, MemoryEffects<[MemWrite]>]> {
+def CommonIR_CopyOp : CommonIR_Op<"copy", [Pure, MemoryEffects<[MemWrite]>]> {
   let summary = "Copy data between memory regions with optional layout conversion";
   let description = [{
     Copies data from source to destination, optionally performing layout
@@ -154,9 +154,9 @@ def TileIR_CopyOp : TileIR_Op<"copy", [Pure, MemoryEffects<[MemWrite]>]> {
   let arguments = (ins
     AnyType:$src,
     AnyType:$dst,
-    OptionalAttr<TileIR_Engine>:$engine,
-    OptionalAttr<TileIR_Layout>:$src_layout,
-    OptionalAttr<TileIR_NZLayoutAttr>:$dst_nz_layout,
+    OptionalAttr<CommonIR_Engine>:$engine,
+    OptionalAttr<CommonIR_Layout>:$src_layout,
+    OptionalAttr<CommonIR_NZLayoutAttr>:$dst_nz_layout,
     OptionalAttr<UnitAttr>:$transpose,
     OptionalAttr<StrAttr>:$comment
   );
@@ -169,7 +169,7 @@ def TileIR_CopyOp : TileIR_Op<"copy", [Pure, MemoryEffects<[MemWrite]>]> {
 // ---------------------------------------------------------------------------
 // tile.load — Load data from GM to local memory
 // ---------------------------------------------------------------------------
-def TileIR_LoadOp : TileIR_Op<"load", [Pure, MemoryEffects<[MemRead]>]> {
+def CommonIR_LoadOp : CommonIR_Op<"load", [Pure, MemoryEffects<[MemRead]>]> {
   let summary = "Load data from global memory to local memory";
   let description = [{
     Loads a tensor from a GM pointer into the specified destination memory
@@ -184,11 +184,11 @@ def TileIR_LoadOp : TileIR_Op<"load", [Pure, MemoryEffects<[MemRead]>]> {
 
   let arguments = (ins
     TT_Ptr:$src,
-    OptionalAttr<TileIR_Engine>:$engine,
-    OptionalAttr<TileIR_MemorySpace>:$dst_space
+    OptionalAttr<CommonIR_Engine>:$engine,
+    OptionalAttr<CommonIR_MemorySpace>:$dst_space
   );
 
-  let results = (outs TileIR_TensorType:$result);
+  let results = (outs CommonIR_TensorType:$result);
 
   let assemblyFormat = "$src attr-dict `:` type($src) `->` type($result)";
 }
@@ -196,7 +196,7 @@ def TileIR_LoadOp : TileIR_Op<"load", [Pure, MemoryEffects<[MemRead]>]> {
 // ---------------------------------------------------------------------------
 // tile.store — Store data from local memory to GM
 // ---------------------------------------------------------------------------
-def TileIR_StoreOp : TileIR_Op<"store", [Pure, MemoryEffects<[MemWrite]>]> {
+def CommonIR_StoreOp : CommonIR_Op<"store", [Pure, MemoryEffects<[MemWrite]>]> {
   let summary = "Store data from local memory to global memory";
   let description = [{
     Stores a tensor from local memory (e.g., UB) to a GM pointer destination.
@@ -211,9 +211,9 @@ def TileIR_StoreOp : TileIR_Op<"store", [Pure, MemoryEffects<[MemWrite]>]> {
   let arguments = (ins
     AnyType:$src,
     TT_Ptr:$dst,
-    OptionalAttr<TileIR_Engine>:$engine,
-    OptionalAttr<TileIR_Layout>:$src_layout,
-    OptionalAttr<TileIR_Layout>:$dst_layout,
+    OptionalAttr<CommonIR_Engine>:$engine,
+    OptionalAttr<CommonIR_Layout>:$src_layout,
+    OptionalAttr<CommonIR_Layout>:$dst_layout,
     OptionalAttr<StrAttr>:$comment
   );
 
@@ -225,7 +225,7 @@ def TileIR_StoreOp : TileIR_Op<"store", [Pure, MemoryEffects<[MemWrite]>]> {
 // ---------------------------------------------------------------------------
 // tile.vec_fill — Fill a buffer with a scalar value (Vector engine)
 // ---------------------------------------------------------------------------
-def TileIR_VecFillOp : TileIR_Op<"vec_fill", [Pure, MemoryEffects<[MemWrite]>]> {
+def CommonIR_VecFillOp : CommonIR_Op<"vec_fill", [Pure, MemoryEffects<[MemWrite]>]> {
   let summary = "Fill a buffer with a scalar value on the Vector engine";
   let description = [{
     Initializes a buffer by broadcasting a scalar value. Typically used to
@@ -240,7 +240,7 @@ def TileIR_VecFillOp : TileIR_Op<"vec_fill", [Pure, MemoryEffects<[MemWrite]>]> 
   let arguments = (ins
     AnyType:$buf,
     AnyType:$value,
-    OptionalAttr<TileIR_Engine>:$compute_unit
+    OptionalAttr<CommonIR_Engine>:$compute_unit
   );
 
   let assemblyFormat = "$buf `,` $value attr-dict `:` type($buf) `,` type($value)";
@@ -253,7 +253,7 @@ def TileIR_VecFillOp : TileIR_Op<"vec_fill", [Pure, MemoryEffects<[MemWrite]>]> 
 // ---------------------------------------------------------------------------
 // tile.cube_launch — Async matrix multiply on Cube engine
 // ---------------------------------------------------------------------------
-def TileIR_CubeLaunchOp : TileIR_Op<"cube_launch", [MemoryEffects<[MemWrite]>]> {
+def CommonIR_CubeLaunchOp : CommonIR_Op<"cube_launch", [MemoryEffects<[MemWrite]>]> {
   let summary = "Launch async matrix multiply on the Cube engine";
   let description = [{
     Asynchronously launches a matrix multiplication on the Cube engine.
@@ -296,7 +296,7 @@ def TileIR_CubeLaunchOp : TileIR_Op<"cube_launch", [MemoryEffects<[MemWrite]>]> 
 // ---------------------------------------------------------------------------
 // tile.cube_wait — Wait for Cube async operation completion
 // ---------------------------------------------------------------------------
-def TileIR_CubeWaitOp : TileIR_Op<"cube_wait", []> {
+def CommonIR_CubeWaitOp : CommonIR_Op<"cube_wait", []> {
   let summary = "Wait for a Cube async operation to complete";
   let description = [{
     Blocks until the Cube async operation identified by the token completes.
@@ -316,7 +316,7 @@ def TileIR_CubeWaitOp : TileIR_Op<"cube_wait", []> {
 // ---------------------------------------------------------------------------
 // tile.reduce — Reduce a tensor along an axis
 // ---------------------------------------------------------------------------
-def TileIR_ReduceOp : TileIR_Op<"reduce", [Pure]> {
+def CommonIR_ReduceOp : CommonIR_Op<"reduce", [Pure]> {
   let summary = "Reduce a tensor along a specified axis";
   let description = [{
     Performs a reduction along a given axis using the specified arithmetic
@@ -330,13 +330,13 @@ def TileIR_ReduceOp : TileIR_Op<"reduce", [Pure]> {
   }];
 
   let arguments = (ins
-    TileIR_TensorType:$src,
+    CommonIR_TensorType:$src,
     I64Attr:$axis,
     FlatSymbolRefAttr:$op,
-    OptionalAttr<TileIR_Engine>:$scope
+    OptionalAttr<CommonIR_Engine>:$scope
   );
 
-  let results = (outs TileIR_TensorType:$result);
+  let results = (outs CommonIR_TensorType:$result);
 
   let assemblyFormat = [{
     $src attr-dict `:` type($src) `->` type($result)
@@ -346,7 +346,7 @@ def TileIR_ReduceOp : TileIR_Op<"reduce", [Pure]> {
 // ---------------------------------------------------------------------------
 // tile.elemwise — Element-wise operation
 // ---------------------------------------------------------------------------
-def TileIR_ElemwiseOp : TileIR_Op<"elemwise", [Pure]> {
+def CommonIR_ElemwiseOp : CommonIR_Op<"elemwise", [Pure]> {
   let summary = "Element-wise operation (math function applied to tensor)";
   let description = [{
     Applies an element-wise operation (e.g., @math.exp) to input tensors.
@@ -360,10 +360,10 @@ def TileIR_ElemwiseOp : TileIR_Op<"elemwise", [Pure]> {
 
   let arguments = (ins
     FlatSymbolRefAttr:$func,
-    Variadic<TileIR_TensorType>:$inputs
+    Variadic<CommonIR_TensorType>:$inputs
   );
 
-  let results = (outs TileIR_TensorType:$result);
+  let results = (outs CommonIR_TensorType:$result);
 
   let assemblyFormat = "$func `(` $inputs `)` attr-dict `:` functional-type($inputs, $result)";
 }
@@ -371,7 +371,7 @@ def TileIR_ElemwiseOp : TileIR_Op<"elemwise", [Pure]> {
 // ---------------------------------------------------------------------------
 // tile.broadcast — Broadcast a tensor to a larger shape
 // ---------------------------------------------------------------------------
-def TileIR_BroadcastOp : TileIR_Op<"broadcast", [Pure]> {
+def CommonIR_BroadcastOp : CommonIR_Op<"broadcast", [Pure]> {
   let summary = "Broadcast a tensor to a larger shape along an axis";
   let description = [{
     Broadcasts a tensor along a specified axis to match a target shape.
@@ -385,12 +385,12 @@ def TileIR_BroadcastOp : TileIR_Op<"broadcast", [Pure]> {
   }];
 
   let arguments = (ins
-    TileIR_TensorType:$src,
+    CommonIR_TensorType:$src,
     I64Attr:$axis,
     I64ArrayAttr:$shape
   );
 
-  let results = (outs TileIR_TensorType:$result);
+  let results = (outs CommonIR_TensorType:$result);
 
   let assemblyFormat = "$src attr-dict `:` type($src) `->` type($result)";
 }
@@ -398,7 +398,7 @@ def TileIR_BroadcastOp : TileIR_Op<"broadcast", [Pure]> {
 // ---------------------------------------------------------------------------
 // tile.cast — Type conversion (e.g., f32 → f16)
 // ---------------------------------------------------------------------------
-def TileIR_CastOp : TileIR_Op<"cast", [Pure]> {
+def CommonIR_CastOp : CommonIR_Op<"cast", [Pure]> {
   let summary = "Type conversion between element types";
   let description = [{
     Converts element types of a tensor (e.g., f32 → f16 for GM write).
@@ -411,10 +411,10 @@ def TileIR_CastOp : TileIR_Op<"cast", [Pure]> {
   }];
 
   let arguments = (ins
-    TileIR_TensorType:$src
+    CommonIR_TensorType:$src
   );
 
-  let results = (outs TileIR_TensorType:$result);
+  let results = (outs CommonIR_TensorType:$result);
 
   let assemblyFormat = "$src attr-dict `:` type($src) `->` type($result)";
 }
@@ -426,7 +426,7 @@ def TileIR_CastOp : TileIR_Op<"cast", [Pure]> {
 // ---------------------------------------------------------------------------
 // tile.to_tensor — Convert a buffer to an immutable tensor view
 // ---------------------------------------------------------------------------
-def TileIR_ToTensorOp : TileIR_Op<"to_tensor", [Pure]> {
+def CommonIR_ToTensorOp : CommonIR_Op<"to_tensor", [Pure]> {
   let summary = "Convert a buffer to a ranked tensor value";
   let description = [{
     Materializes a buffer as a standard ranked tensor so it can feed Triton
@@ -440,7 +440,7 @@ def TileIR_ToTensorOp : TileIR_Op<"to_tensor", [Pure]> {
   }];
 
   let arguments = (ins
-    TileIR_BufType:$src
+    CommonIR_BufType:$src
   );
 
   let results = (outs TT_Tensor:$result);
@@ -451,7 +451,7 @@ def TileIR_ToTensorOp : TileIR_Op<"to_tensor", [Pure]> {
 // ---------------------------------------------------------------------------
 // tile.store_tensor — Store a tensor into a buffer
 // ---------------------------------------------------------------------------
-def TileIR_StoreTensorOp : TileIR_Op<"store_tensor", [Pure, MemoryEffects<[MemWrite]>]> {
+def CommonIR_StoreTensorOp : CommonIR_Op<"store_tensor", [Pure, MemoryEffects<[MemWrite]>]> {
   let summary = "Store a tensor value into a buffer";
   let description = [{
     Writes a tensor value back into a mutable buffer. Inverse of
@@ -464,8 +464,8 @@ def TileIR_StoreTensorOp : TileIR_Op<"store_tensor", [Pure, MemoryEffects<[MemWr
   }];
 
   let arguments = (ins
-    AnyTypeOf<[TileIR_TensorType, AnyRankedTensor]>:$src,
-    TileIR_BufType:$dst
+    AnyTypeOf<[CommonIR_TensorType, AnyRankedTensor]>:$src,
+    CommonIR_BufType:$dst
   );
 
   let assemblyFormat = "$src `->` $dst attr-dict `:` type($src) `,` type($dst)";
@@ -478,7 +478,7 @@ def TileIR_StoreTensorOp : TileIR_Op<"store_tensor", [Pure, MemoryEffects<[MemWr
 // ---------------------------------------------------------------------------
 // tile.set_flag — Set a cross-engine synchronization flag
 // ---------------------------------------------------------------------------
-def TileIR_SetFlagOp : TileIR_Op<"set_flag", []> {
+def CommonIR_SetFlagOp : CommonIR_Op<"set_flag", []> {
   let summary = "Set a cross-engine synchronization flag";
   let description = [{
     Signals that a producer pipe has completed its work, enabling the
@@ -491,9 +491,9 @@ def TileIR_SetFlagOp : TileIR_Op<"set_flag", []> {
   }];
 
   let arguments = (ins
-    TileIR_Pipe:$producer,
-    TileIR_Pipe:$consumer,
-    TileIR_EventID:$event
+    CommonIR_Pipe:$producer,
+    CommonIR_Pipe:$consumer,
+    CommonIR_EventID:$event
   );
 
   let assemblyFormat = [{
@@ -504,7 +504,7 @@ def TileIR_SetFlagOp : TileIR_Op<"set_flag", []> {
 // ---------------------------------------------------------------------------
 // tile.wait_flag — Wait for a cross-engine synchronization flag
 // ---------------------------------------------------------------------------
-def TileIR_WaitFlagOp : TileIR_Op<"wait_flag", []> {
+def CommonIR_WaitFlagOp : CommonIR_Op<"wait_flag", []> {
   let summary = "Wait for a cross-engine synchronization flag";
   let description = [{
     Blocks until the specified producer pipe has set the event flag.
@@ -517,9 +517,9 @@ def TileIR_WaitFlagOp : TileIR_Op<"wait_flag", []> {
   }];
 
   let arguments = (ins
-    TileIR_Pipe:$producer,
-    TileIR_Pipe:$consumer,
-    TileIR_EventID:$event
+    CommonIR_Pipe:$producer,
+    CommonIR_Pipe:$consumer,
+    CommonIR_EventID:$event
   );
 
   let assemblyFormat = [{
@@ -530,7 +530,7 @@ def TileIR_WaitFlagOp : TileIR_Op<"wait_flag", []> {
 // ---------------------------------------------------------------------------
 // tile.pipe_barrier — Intra-engine pipeline barrier
 // ---------------------------------------------------------------------------
-def TileIR_PipeBarrierOp : TileIR_Op<"pipe_barrier", []> {
+def CommonIR_PipeBarrierOp : CommonIR_Op<"pipe_barrier", []> {
   let summary = "Intra-engine pipeline barrier (RAW hazard)";
   let description = [{
     Inserts a barrier within a single pipe/engine to ensure read-after-write
@@ -543,7 +543,7 @@ def TileIR_PipeBarrierOp : TileIR_Op<"pipe_barrier", []> {
   }];
 
   let arguments = (ins
-    TileIR_Pipe:$pipe
+    CommonIR_Pipe:$pipe
   );
 
   let assemblyFormat = "`[` $pipe `]` attr-dict";

@@ -1,4 +1,4 @@
-//===- TileIROps.cpp - TileIR operation implementations -------------------===//
+//===- CommonIROps.cpp - CommonIR operation implementations -------------------===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,11 +6,11 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// This file implements TileIR operations with their verification logic.
+// This file implements CommonIR operations with their verification logic.
 //
 //===----------------------------------------------------------------------===//
 
-#include "mlir-ext/Dialect/TileIR/IR/TileIRDialect.h"
+#include "mlir-ext/Dialect/CommonIR/IR/CommonIRDialect.h"
 
 #include "mlir/IR/Builders.h"
 #include "mlir/IR/BuiltinTypes.h"

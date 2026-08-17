@@ -7,13 +7,13 @@
 namespace mlir::triton::tile {
 
 std::unique_ptr<mlir::OperationPass<mlir::ModuleOp>>
-createTileIRInferLayoutPass();
+createCommonIRInferLayoutPass();
 
 #define GEN_PASS_DECL
-#include "mlir-ext/Dialect/TileIR/Transforms/Passes.h.inc"
+#include "mlir-ext/Dialect/CommonIR/Transforms/Passes.h.inc"
 
 #define GEN_PASS_REGISTRATION
-#include "mlir-ext/Dialect/TileIR/Transforms/Passes.h.inc"
+#include "mlir-ext/Dialect/CommonIR/Transforms/Passes.h.inc"
 
 } // namespace mlir::triton::tile
 

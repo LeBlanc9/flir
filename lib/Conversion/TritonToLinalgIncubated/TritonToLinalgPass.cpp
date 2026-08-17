@@ -940,7 +940,7 @@ void TritonToLinalgIncubatedPass::runOnOperation() {
     auto *op = loopOp.getOperation();
 
     // Skip loops whose body contains pre-lowered memref/bufferization ops
-    // (produced by TileIRToHIVM).  These loops already operate on memrefs and
+    // (produced by CommonIRToHIVM).  These loops already operate on memrefs and
     // cannot be restructured by rewriteLoopOp.
     bool hasPreLoweredOps = false;
     op->walk([&](Operation *inner) {

@@ -1,4 +1,4 @@
-//===-- TileIRAttrDefs.td - TileIR attribute definitions -----*- tablegen -*-===//
+//===-- CommonIRAttrDefs.td - CommonIR attribute definitions -----*- tablegen -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,16 +6,16 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// This file defines TileIR attributes: memory space, data layout, buffer policy,
+// This file defines CommonIR attributes: memory space, data layout, buffer policy,
 // pipe types, event IDs, and engine attributes. These are used as operands /
-// attributes on TileIR ops to encode explicit hardware control.
+// attributes on CommonIR ops to encode explicit hardware control.
 //
 //===----------------------------------------------------------------------===//
 
 #ifndef TILE_IR_ATTRDEFS
 #define TILE_IR_ATTRDEFS
 
-include "mlir-ext/Dialect/TileIR/IR/TileIRDialect.td"
+include "mlir-ext/Dialect/CommonIR/IR/CommonIRDialect.td"
 
 include "mlir/IR/AttrTypeBase.td"
 include "mlir/IR/EnumAttr.td"
@@ -24,8 +24,8 @@ include "mlir/IR/EnumAttr.td"
 // Attribute base class
 //===----------------------------------------------------------------------===//
 
-class TileIR_Attr<string name, string attrMnemonic, list<Trait> traits = []>
-    : AttrDef<TileIR_Dialect, name, traits> {
+class CommonIR_Attr<string name, string attrMnemonic, list<Trait> traits = []>
+    : AttrDef<CommonIR_Dialect, name, traits> {
   let mnemonic = attrMnemonic;
 }
 
@@ -33,8 +33,8 @@ class TileIR_Attr<string name, string attrMnemonic, list<Trait> traits = []>
 // Memory Space Enum
 //===----------------------------------------------------------------------===//
 
-def TileIR_MemorySpace : I64EnumAttr<
-  "MemorySpace", "TileIR memory space", [
+def CommonIR_MemorySpace : I64EnumAttr<
+  "MemorySpace", "CommonIR memory space", [
     I64EnumAttrCase<"GM",  0, "gm">,
     I64EnumAttrCase<"L1",  1, "l1">,
     I64EnumAttrCase<"L0A", 2, "l0a">,
@@ -53,8 +53,8 @@ def TileIR_MemorySpace : I64EnumAttr<
 // Data Layout Enum
 //===----------------------------------------------------------------------===//
 
-def TileIR_Layout : I64EnumAttr<
-  "Layout", "TileIR data layout format", [
+def CommonIR_Layout : I64EnumAttr<
+  "Layout", "CommonIR data layout format", [
     I64EnumAttrCase<"ND",  0, "nd">,
     I64EnumAttrCase<"NZ",  1, "nz">,
   ]> {
@@ -65,8 +65,8 @@ def TileIR_Layout : I64EnumAttr<
 // Buffer Policy Enum
 //===----------------------------------------------------------------------===//
 
-def TileIR_Policy : I64EnumAttr<
-  "Policy", "TileIR buffer policy", [
+def CommonIR_Policy : I64EnumAttr<
+  "Policy", "CommonIR buffer policy", [
     I64EnumAttrCase<"SingleBuffer", 0, "single_buffer">,
     I64EnumAttrCase<"DoubleBuffer", 1, "double_buffer">,
   ]> {
@@ -77,8 +77,8 @@ def TileIR_Policy : I64EnumAttr<
 // Engine Enum
 //===----------------------------------------------------------------------===//
 
-def TileIR_Engine : I64EnumAttr<
-  "Engine", "TileIR engine type", [
+def CommonIR_Engine : I64EnumAttr<
+  "Engine", "CommonIR engine type", [
     I64EnumAttrCase<"Cube",    0, "cube">,
     I64EnumAttrCase<"Vector",  1, "vector">,
     I64EnumAttrCase<"MTE2",    2, "mte2">,
@@ -93,8 +93,8 @@ def TileIR_Engine : I64EnumAttr<
 // Pipe Enum (for set_flag / wait_flag / pipe_barrier)
 //===----------------------------------------------------------------------===//
 
-def TileIR_Pipe : I64EnumAttr<
-  "Pipe", "TileIR pipe type for cross-engine synchronization", [
+def CommonIR_Pipe : I64EnumAttr<
+  "Pipe", "CommonIR pipe type for cross-engine synchronization", [
     I64EnumAttrCase<"PIPE_M",    0, "PIPE_M">,
     I64EnumAttrCase<"PIPE_V",    1, "PIPE_V">,
     I64EnumAttrCase<"PIPE_MTE1", 2, "PIPE_MTE1">,
@@ -110,8 +110,8 @@ def TileIR_Pipe : I64EnumAttr<
 // Event ID Enum
 //===----------------------------------------------------------------------===//
 
-def TileIR_EventID : I64EnumAttr<
-  "EventID", "TileIR hardware event IDs for cross-engine synchronization", [
+def CommonIR_EventID : I64EnumAttr<
+  "EventID", "CommonIR hardware event IDs for cross-engine synchronization", [
     I64EnumAttrCase<"EVENT_ID0", 0, "EVENT_ID0">,
     I64EnumAttrCase<"EVENT_ID1", 1, "EVENT_ID1">,
     I64EnumAttrCase<"EVENT_ID2", 2, "EVENT_ID2">,
@@ -126,7 +126,7 @@ def TileIR_EventID : I64EnumAttr<
 // NZ Fractal Layout Attribute (for Cube operands)
 //===----------------------------------------------------------------------===//
 
-def TileIR_NZLayoutAttr : TileIR_Attr<"NZLayout", "nz"> {
+def CommonIR_NZLayoutAttr : CommonIR_Attr<"NZLayout", "nz"> {
   let summary = "NZ fractal layout attribute for Cube operands";
   let description = [{
     Specifies the NZ (Z-order) fractal layout used for Cube MMA operands.
@@ -144,8 +144,8 @@ def TileIR_NZLayoutAttr : TileIR_Attr<"NZLayout", "nz"> {
 // Alloc lifetime attribute
 //===----------------------------------------------------------------------===//
 
-def TileIR_Lifetime : I64EnumAttr<
-  "Lifetime", "TileIR buffer lifetime policy", [
+def CommonIR_Lifetime : I64EnumAttr<
+  "Lifetime", "CommonIR buffer lifetime policy", [
     I64EnumAttrCase<"Default",      0, "default">,
     I64EnumAttrCase<"LoopCarried",  1, "loop_carried">,
   ]> {
