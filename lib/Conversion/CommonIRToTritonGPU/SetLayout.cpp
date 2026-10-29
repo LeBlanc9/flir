@@ -1,7 +1,7 @@
 #include "mlir-ext/Conversion/CommonIRToTritonGPU/Patterns.h"
 
 #include "mlir-ext/Dialect/CommonIR/IR/CommonIRDialect.h"
-#include "mlir-ext/Dialect/CommonIR/Transforms/LayoutHints.h"
+#include "mlir-ext/Dialect/CommonIR/IR/LayoutHintAttrs.h"
 #include "mlir/Transforms/DialectConversion.h"
 #include "triton/Dialect/TritonGPU/IR/Dialect.h"
 
@@ -19,9 +19,8 @@ struct SetLayoutPattern : OpConversionPattern<SetLayoutOp> {
     auto encoding = op.getLayout();
     auto type = op.getResult().getType().cloneWithEncoding(encoding);
     Value source = adaptor.getSource();
-    if (source.getType() == type) {
-      if (auto result = dyn_cast<OpResult>(source))
-        setExplicitResultEncoding(result, encoding);
+    if (source.getType() == type &&
+        succeeded(trySetExplicitValueEncoding(source, encoding))) {
       rewriter.replaceOp(op, source);
     } else {
       auto convert = rewriter.replaceOpWithNewOp<ttg::ConvertLayoutOp>(

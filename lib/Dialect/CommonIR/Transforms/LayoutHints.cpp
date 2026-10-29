@@ -6,52 +6,8 @@
 #include "triton/Dialect/Triton/IR/Dialect.h"
 #include "llvm/ADT/MapVector.h"
 #include "llvm/ADT/PriorityWorklist.h"
-#include "llvm/ADT/Twine.h"
 
 namespace mlir::triton::tile {
-
-static constexpr const char *kExplicitEncodingAttrPrefix =
-    "tile.explicit_encoding.";
-static constexpr const char *kExplicitMemoryEncodingAttrName =
-    "tile.explicit_memory_encoding";
-
-std::string getExplicitEncodingAttrName(unsigned resultNumber) {
-  return (llvm::Twine(kExplicitEncodingAttrPrefix) + llvm::Twine(resultNumber))
-      .str();
-}
-
-const char *getExplicitMemoryEncodingAttrName() {
-  return kExplicitMemoryEncodingAttrName;
-}
-
-Attribute getExplicitResultEncoding(Operation *op, unsigned resultNumber) {
-  return op->getAttr(getExplicitEncodingAttrName(resultNumber));
-}
-
-void setExplicitResultEncoding(Operation *op, unsigned resultNumber,
-                               Attribute encoding) {
-  op->setAttr(getExplicitEncodingAttrName(resultNumber), encoding);
-}
-
-void setExplicitResultEncoding(OpResult result, Attribute encoding) {
-  setExplicitResultEncoding(result.getOwner(), result.getResultNumber(),
-                            encoding);
-}
-
-Attribute getExplicitMemoryEncoding(Operation *op) {
-  return op->getAttr(kExplicitMemoryEncodingAttrName);
-}
-
-void setExplicitMemoryEncoding(Operation *op, Attribute encoding) {
-  op->setAttr(kExplicitMemoryEncodingAttrName, encoding);
-}
-
-Attribute getExplicitValueEncoding(Value value) {
-  if (auto result = dyn_cast<OpResult>(value))
-    return getExplicitResultEncoding(result.getOwner(),
-                                     result.getResultNumber());
-  return nullptr;
-}
 
 static LogicalResult mergeExplicitMemoryEncoding(Operation *op, Value value,
                                                  Attribute candidate,

@@ -1,9 +1,9 @@
 #ifndef COMMONIR_TRANSFORMS_LAYOUTHINTS_H
 #define COMMONIR_TRANSFORMS_LAYOUTHINTS_H
 
+#include "mlir-ext/Dialect/CommonIR/IR/LayoutHintAttrs.h"
 #include "mlir/IR/BuiltinOps.h"
 #include "llvm/ADT/STLFunctionalExtras.h"
-#include <string>
 
 namespace mlir::triton::tile {
 
@@ -30,16 +30,6 @@ struct LayoutHintCallbacks {
 // beforehand and supplies conversions for typed boundaries.
 LogicalResult propagateLayoutHints(ModuleOp module,
                                   const LayoutHintCallbacks &callbacks);
-
-std::string getExplicitEncodingAttrName(unsigned resultNumber);
-const char *getExplicitMemoryEncodingAttrName();
-Attribute getExplicitResultEncoding(Operation *op, unsigned resultNumber);
-void setExplicitResultEncoding(Operation *op, unsigned resultNumber,
-                               Attribute encoding);
-void setExplicitResultEncoding(OpResult result, Attribute encoding);
-Attribute getExplicitValueEncoding(Value value);
-Attribute getExplicitMemoryEncoding(Operation *op);
-void setExplicitMemoryEncoding(Operation *op, Attribute encoding);
 
 // Check agreement between result/operand constraints on a memory operation.
 // The caller decides which operations require a common memory encoding.
