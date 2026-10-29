@@ -5,6 +5,5 @@ add_triton_library(CommonIRToTritonGPU
   LINK_LIBS PUBLIC
   MLIRTransforms
   CommonIRIR
-  CommonIRTransforms
   TritonGPUIR
 )

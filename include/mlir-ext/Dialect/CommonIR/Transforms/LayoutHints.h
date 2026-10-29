@@ -7,8 +7,7 @@
 
 namespace mlir::triton::tile {
 
-// Reuse the caller's operation rules without depending on a GPU dialect or
-// transform library. A null encoding stops propagation through that operation.
+// Caller-supplied rules; a null encoding stops propagation through an operation.
 struct LayoutHintCallbacks {
   llvm::function_ref<Attribute(Operation *, Attribute)> inferSrcEncoding;
   llvm::function_ref<Attribute(Operation *, Attribute)> inferDstEncoding;
@@ -24,19 +23,10 @@ struct LayoutHintCallbacks {
       nullptr;
 };
 
-// Propagate tile.set_layout requirements into tensor encodings. Inferred values
-// are not explicit constraints: the original set_layout ops remain in the IR
-// and their lowering preserves the anchors. The caller validates target layouts
-// beforehand and supplies conversions for typed boundaries.
+// Infer tensor encodings without making them explicit constraints; set_layout
+// ops remain as anchors. The caller must validate target layouts beforehand.
 LogicalResult propagateLayoutHints(ModuleOp module,
                                   const LayoutHintCallbacks &callbacks);
-
-// Check agreement between result/operand constraints on a memory operation.
-// The caller decides which operations require a common memory encoding.
-LogicalResult inferExplicitMemoryEncoding(Operation *op, Attribute &encoding);
-
-// Drop planning markers after layout-sensitive optimization, retaining types.
-void clearLayoutHints(ModuleOp module);
 
 } // namespace mlir::triton::tile
 

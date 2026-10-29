@@ -9,53 +9,8 @@
 
 namespace mlir::triton::tile {
 
-static LogicalResult mergeExplicitMemoryEncoding(Operation *op, Value value,
-                                                 Attribute candidate,
-                                                 Attribute &encoding) {
-  if (!candidate)
-    return success();
-
-  if (auto tensorType = dyn_cast<RankedTensorType>(value.getType())) {
-    if (tensorType.getEncoding() != candidate)
-      return op->emitOpError("has explicit CommonIR encoding that does not match "
-                             "the tensor type encoding");
-  }
-
-  if (!encoding) {
-    encoding = candidate;
-    return success();
-  }
-
-  if (encoding == candidate)
-    return success();
-
-  op->emitOpError("has conflicting explicit CommonIR memory encodings:\n  ")
-      << encoding << "\nand\n  " << candidate;
-  return failure();
-}
-
-LogicalResult inferExplicitMemoryEncoding(Operation *op, Attribute &encoding) {
-  encoding = getExplicitMemoryEncoding(op);
-
-  for (OpResult result : op->getResults()) {
-    if (failed(mergeExplicitMemoryEncoding(
-            op, result,
-            getExplicitResultEncoding(op, result.getResultNumber()), encoding)))
-      return failure();
-  }
-
-  for (OpOperand &operand : op->getOpOperands()) {
-    if (failed(mergeExplicitMemoryEncoding(
-            op, operand.get(), getExplicitValueEncoding(operand.get()), encoding)))
-      return failure();
-  }
-
-  return success();
-}
-
 namespace {
 
-// Propagate explicit tensor-layout requirements from tile.set_layout.
 struct LayoutHintInfo {
   Attribute encoding;
   bool mayVary = true;
@@ -156,16 +111,13 @@ propagateFunctionLayoutHints(FuncOp func, const LayoutHintCallbacks &callbacks) 
     Value value = worklist.pop_back_val();
     LayoutHintInfo info = valueToEncoding[value];
     assert(info && "worklist value must have an encoding");
-    // Splat constants can be rematerialized in each user's layout. Do not
-    // broadcast a consumer's inferred encoding through a shared constant to
-    // unrelated users (for example, loads sharing the same masked fill value).
+    // Splats can be rematerialized per user; don't couple unrelated users' layouts.
     if (auto constant = value.getDefiningOp<arith::ConstantOp>();
         info.mayVary && constant &&
         isa<SplatElementsAttr>(constant.getValue()))
       continue;
 
-    // Only the set_layout result itself is fixed. Every outgoing requirement
-    // is inferred, including those crossing tied control-flow values.
+    // Propagated requirements are soft, including across control flow.
     info.mayVary = true;
 
     for (OpOperand &use : value.getUses()) {
@@ -187,8 +139,7 @@ propagateFunctionLayoutHints(FuncOp func, const LayoutHintCallbacks &callbacks) 
         continue;
       }
       if (auto dot = dyn_cast<triton::DotOpInterface>(op)) {
-        // A/B use dot-operand encodings, while C and D use the parent MMA
-        // encoding. Only C and D are layout-equivalent across a dot.
+        // Only C and D share a layout; A/B have independent requirements.
         if (use.getOperandNumber() == 2 &&
             failed(updateLayoutHint({dot.getD()}, info, func, valueToEncoding,
                                      worklist, callbacks)))
@@ -199,8 +150,7 @@ propagateFunctionLayoutHints(FuncOp func, const LayoutHintCallbacks &callbacks) 
         continue;
 
       if (isa<ExtractTileOp, InsertTileOp>(op)) {
-        // Insert's base and result have the same type. Across a size-changing
-        // tile boundary, sharing a layout is only a target-checked preference.
+        // Insert ties base to result; size-changing boundaries need target checks.
         bool tiedBase = isa<InsertTileOp>(op) && use.getOperandNumber() == 0;
         if ((tiedBase || canPropagateTile(op, info.encoding)) &&
             failed(updateLayoutHint({op->getResult(0)}, info, func,
@@ -228,8 +178,6 @@ propagateFunctionLayoutHints(FuncOp func, const LayoutHintCallbacks &callbacks) 
                                      worklist, callbacks)))
           return failure();
       } else if (isa<triton::DotOpInterface>(definingOp)) {
-        // A/B have independent anchors. Only propagate D's layout to C;
-        // an incompatible accumulator can be converted at the dot boundary.
         if (failed(updateLayoutHint({definingOp->getOperand(2)},
                                      {info.encoding, true}, func, valueToEncoding,
                                      worklist, callbacks)))
@@ -287,8 +235,7 @@ propagateFunctionLayoutHints(FuncOp func, const LayoutHintCallbacks &callbacks) 
     }
   }
 
-  // A fixed producer (for example a global load) may stop propagation. Align
-  // typed boundaries without treating the inferred layout as an explicit anchor.
+  // Reconcile typed boundaries without creating explicit constraints.
   auto alignOperand = [&](OpOperand &operand, Type requiredType) {
     auto type = dyn_cast<RankedTensorType>(requiredType);
     if (!type || !type.getEncoding() || operand.get().getType() == type)
@@ -333,14 +280,6 @@ LogicalResult propagateLayoutHints(ModuleOp module,
     if (failed(propagateFunctionLayoutHints(func, callbacks)))
       return failure();
   return success();
-}
-
-void clearLayoutHints(ModuleOp module) {
-  module.walk([](Operation *op) {
-    op->removeAttr(getExplicitMemoryEncodingAttrName());
-    for (unsigned i = 0; i < op->getNumResults(); ++i)
-      op->removeAttr(getExplicitEncodingAttrName(i));
-  });
 }
 
 } // namespace mlir::triton::tile
